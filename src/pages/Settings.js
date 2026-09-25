@@ -23,10 +23,7 @@ function Settings() {
       return;
     }
 
-    const data = {
-      passwords,
-      email: JSON.parse(localStorage.getItem('user')).email
-    }
+    const data = { passwords };
 
     Axios.post(`${process.env.REACT_APP_API_URL}/api/auth/changePassword`, data).then(
         (response) => {

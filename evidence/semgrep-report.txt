@@ -1,0 +1,132 @@
+                    
+                    
+┌──────────────────┐
+│ 11 Code Findings │
+└──────────────────┘
+                        
+    /src/server/index.js
+    ❯❱ javascript.express.security.audit.express-cookie-settings.express-cookie-session-default-name
+          ❰❰ Blocking ❱❱
+          Don’t use the default session cookie name Using the default session cookie name can open your app to
+          attacks. The security issue posed is similar to X-Powered-By: a potential attacker can use it to    
+          fingerprint the server and target attacks accordingly.                                              
+          Details: https://sg.run/1Z5x                                                                        
+                                                                                                              
+           73┆ session({
+           74┆   key: "userId",
+           75┆   secret: "theateam",
+           76┆   resave: false,
+           77┆   saveUninitialized: false,
+           78┆   cookie: {
+           79┆     expires: 60 * 60 * 24,
+           80┆   },
+           81┆ })
+   
+    ❯❱ javascript.express.security.audit.express-cookie-settings.express-cookie-session-no-domain
+          ❰❰ Blocking ❱❱
+          Default session middleware settings: `domain` not set. It indicates the domain of the cookie; use it
+          to compare against the domain of the server in which the URL is being requested. If they match, then
+          check the path attribute next.                                                                      
+          Details: https://sg.run/rd41                                                                        
+                                                                                                              
+           73┆ session({
+           74┆   key: "userId",
+           75┆   secret: "theateam",
+           76┆   resave: false,
+           77┆   saveUninitialized: false,
+           78┆   cookie: {
+           79┆     expires: 60 * 60 * 24,
+           80┆   },
+           81┆ })
+   
+    ❯❱ javascript.express.security.audit.express-cookie-settings.express-cookie-session-no-httponly
+          ❰❰ Blocking ❱❱
+          Default session middleware settings: `httpOnly` not set. It ensures the cookie is sent only over
+          HTTP(S), not client JavaScript, helping to protect against cross-site scripting attacks.        
+          Details: https://sg.run/ydBO                                                                    
+                                                                                                          
+           73┆ session({
+           74┆   key: "userId",
+           75┆   secret: "theateam",
+           76┆   resave: false,
+           77┆   saveUninitialized: false,
+           78┆   cookie: {
+           79┆     expires: 60 * 60 * 24,
+           80┆   },
+           81┆ })
+   
+    ❯❱ javascript.express.security.audit.express-cookie-settings.express-cookie-session-no-path
+          ❰❰ Blocking ❱❱
+          Default session middleware settings: `path` not set. It indicates the path of the cookie; use it to
+          compare against the request path. If this and domain match, then send the cookie in the request.   
+          Details: https://sg.run/b7pd                                                                       
+                                                                                                             
+           73┆ session({
+           74┆   key: "userId",
+           75┆   secret: "theateam",
+           76┆   resave: false,
+           77┆   saveUninitialized: false,
+           78┆   cookie: {
+           79┆     expires: 60 * 60 * 24,
+           80┆   },
+           81┆ })
+   
+    ❯❱ javascript.express.security.audit.express-cookie-settings.express-cookie-session-no-secure
+          ❰❰ Blocking ❱❱
+          Default session middleware settings: `secure` not set. It ensures the browser only sends the cookie
+          over HTTPS.                                                                                        
+          Details: https://sg.run/9oKz                                                                       
+                                                                                                             
+           73┆ session({
+           74┆   key: "userId",
+           75┆   secret: "theateam",
+           76┆   resave: false,
+           77┆   saveUninitialized: false,
+           78┆   cookie: {
+           79┆     expires: 60 * 60 * 24,
+           80┆   },
+           81┆ })
+   
+    ❯❱ javascript.express.security.audit.express-session-hardcoded-secret.express-session-hardcoded-secret
+          ❰❰ Blocking ❱❱
+          A hard-coded credential was detected. It is not recommended to store credentials in source-code, as
+          this risks secrets being leaked and used by either an internal or external malicious adversary. It 
+          is recommended to use environment variables to securely provide credentials or retrieve credentials
+          from a secure vault or HSM (Hardware Security Module).                                             
+          Details: https://sg.run/LYvG                                                                       
+                                                                                                             
+           75┆ secret: "theateam",
+                                                         
+    /src/server/src/api/controllers/members.controller.js
+    ❯❱ javascript.express.security.audit.xss.direct-response-write.direct-response-write
+          ❰❰ Blocking ❱❱
+          Detected directly writing to a Response object from user-defined input. This bypasses any HTML      
+          escaping and may expose your application to a Cross-Site-scripting (XSS) vulnerability. Instead, use
+          'resp.render()' to render safely escaped HTML.                                                      
+          Details: https://sg.run/vzGl                                                                        
+                                                                                                              
+           15┆ res.send(member)
+            ⋮┆----------------------------------------
+           45┆ res.send(member);
+                                                          
+    /src/server/src/api/controllers/products.controller.js
+    ❯❱ javascript.express.security.audit.xss.direct-response-write.direct-response-write
+          ❰❰ Blocking ❱❱
+          Detected directly writing to a Response object from user-defined input. This bypasses any HTML      
+          escaping and may expose your application to a Cross-Site-scripting (XSS) vulnerability. Instead, use
+          'resp.render()' to render safely escaped HTML.                                                      
+          Details: https://sg.run/vzGl                                                                        
+                                                                                                              
+            6┆ res.send(product)
+                                                         
+    /src/server/src/api/controllers/trainer.controller.js
+    ❯❱ javascript.express.security.audit.xss.direct-response-write.direct-response-write
+          ❰❰ Blocking ❱❱
+          Detected directly writing to a Response object from user-defined input. This bypasses any HTML      
+          escaping and may expose your application to a Cross-Site-scripting (XSS) vulnerability. Instead, use
+          'resp.render()' to render safely escaped HTML.                                                      
+          Details: https://sg.run/vzGl                                                                        
+                                                                                                              
+            7┆ res.send(trainer)
+            ⋮┆----------------------------------------
+           37┆ res.send(trainer);
