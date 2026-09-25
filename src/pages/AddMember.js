@@ -242,6 +242,6 @@ export default function AddMember(props) {
 }
 
 AddMember.propTypes = {
-  isOpen: PropTypes.string,
-  toggle: PropTypes.string,
+  isOpen: PropTypes.bool,
+  toggle: PropTypes.func,
 };

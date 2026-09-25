@@ -198,6 +198,6 @@ export default function AddProduct(props) {
 }
 
 AddProduct.propTypes = {
-  isOpen: PropTypes.string,
-  toggle: PropTypes.string,
+  isOpen: PropTypes.bool,
+  toggle: PropTypes.func,
 };

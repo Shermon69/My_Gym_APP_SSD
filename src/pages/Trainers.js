@@ -38,7 +38,7 @@ import { fDate } from "../utils/formatTime";
 import { fPhone } from "../utils/formatNumber";
 
 const TABLE_HEAD = [
-  { id: "", label: "", alignRight: false },
+  { id: "avatar", label: "", alignRight: false },
   { id: "firstName", label: "First Name", alignRight: false },
   { id: "lastName", label: "Last Name", alignRight: false },
   { id: "cin", label: "CIN", alignRight: false },
@@ -47,7 +47,7 @@ const TABLE_HEAD = [
   { id: "phoneNumber", label: "Phone Number", alignRight: false },
   { id: "gender", label: "Gender", alignRight: false },
   { id: "isActive", label: "Status", alignRight: false },
-  { id: "" },
+  { id: "actions" },
 ];
 
 function descendingComparator(a, b, orderBy) {

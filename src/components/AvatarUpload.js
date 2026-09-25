@@ -139,8 +139,8 @@ function AvatarUpload(props) {
 export default AvatarUpload;
 
 AvatarUpload.propTypes = {
-  isOpen: PropTypes.string,
-  toggle: PropTypes.string,
+  isOpen: PropTypes.bool,
+  toggle: PropTypes.func,
   formData: PropTypes.object,
   setFormData: PropTypes.func,
 };

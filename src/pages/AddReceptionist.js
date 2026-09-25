@@ -208,6 +208,6 @@ export default function AddUser(props) {
 }
 
 AddUser.propTypes = {
-  isOpen: PropTypes.string,
-  toggle: PropTypes.string,
+  isOpen: PropTypes.bool,
+  toggle: PropTypes.func,
 };

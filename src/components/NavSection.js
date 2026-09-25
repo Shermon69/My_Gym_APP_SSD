@@ -181,7 +181,7 @@ export default function NavSection() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
+    if (user && Array.isArray(user.roles)) {
       setShowAdminBoard(user.roles.includes("ROLE_ADMIN"));
     }
   }, []);

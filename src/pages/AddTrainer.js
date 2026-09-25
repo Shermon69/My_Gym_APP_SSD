@@ -199,6 +199,6 @@ export default function AddTrainer(props) {
 }
 
 AddTrainer.propTypes = {
-  isOpen: PropTypes.string,
-  toggle: PropTypes.string,
+  isOpen: PropTypes.bool,
+  toggle: PropTypes.func,
 };
