@@ -45,6 +45,8 @@ export default function LoginForm() {
           console.log(response);
           if (response.data.accessToken) {
             localStorage.setItem("user", JSON.stringify(response.data));
+            Axios.defaults.headers.common["x-access-token"] =
+              response.data.accessToken;
             console.log("Successfully Logged in!!");
             navigate("/dashboard/app", { replace: true });
           }

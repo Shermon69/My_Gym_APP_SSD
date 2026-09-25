@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useRoutes } from "react-router-dom";
+import Axios from "axios";
 
 import { SnackbarProvider } from "notistack";
 // routes
@@ -15,6 +16,20 @@ import { BaseOptionChartStyle } from "./components/charts/BaseOptionChart";
 import { UserContext } from "./UserContext";
 
 // ----------------------------------------------------------------------
+
+// Re-attach the stored JWT to every future axios request on load/refresh,
+// so protected API routes keep working for an already-logged-in session.
+const storedUser = localStorage.getItem("user");
+if (storedUser) {
+  try {
+    const { accessToken } = JSON.parse(storedUser);
+    if (accessToken) {
+      Axios.defaults.headers.common["x-access-token"] = accessToken;
+    }
+  } catch (e) {
+    // Malformed localStorage value: ignore, user will be redirected to login.
+  }
+}
 
 export default function App() {
   const [user, setUser] = useState({});

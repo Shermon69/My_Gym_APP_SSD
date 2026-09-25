@@ -1,0 +1,108 @@
+=== V1 — Broken Access Control — BEFORE evidence ===
+Captured: 2026-09-25T16:52:27Z
+Baseline commit: ef22d1b3d3fd5e981425e2e7e590cc6fa093dbd1
+
+--- 1. GET /api/members with NO Authorization/x-access-token header ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 259
+ETag: W/"103-szDGGVIKIBf/1D5WQCUUAa9sf3o"
+Date: Fri, 25 Sep 2026 16:52:27 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+[{"_id":"6ab6341524ee4341a1085a1f","firstName":"John","lastName":"Cena","profilePic":"","birthday":"1977-09-14T08:42:23.000Z","phoneNumber":94736676676,"gender":"male","isActive":true,"hasPaid":true,"cin":"001","createdAt":"2026-09-25T08:43:01.574Z","__v":0}]
+
+--- 2. GET /api/trainers with NO auth header ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 616
+ETag: W/"268-PWrVxeYY3vuZTlLHATAsZhVQuWQ"
+Date: Fri, 25 Sep 2026 16:52:27 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+[{"_id":"6ab6345924ee4341a1085a28","firstName":"Randy","lastName":"Orten","profilePic":"","birthday":"1940-06-05T08:43:36.000Z","email":"randy@gmail.com","phoneNumber":94776457632,"gender":"male","isActive":true,"cin":"002","sportTypes":[{"_id":"6ab634eb24ee4341a1085a47","name":"MMA","description":"MMA Training","sportPic":"https://www.beachvillas.com/travel/wp-content/uploads/2020/11/Return_of_Sports.jpg","__v":0},{"_id":"6ab636b8c8b44eb69205c0d6","name":"Boxing","description":"Boxing Training","sportPic":"https://www.beachvillas.com/travel/wp-content/uploads/2020/11/Return_of_Sports.jpg","__v":0}],"__v":0}]
+
+--- 3. GET /api/payment with NO auth header (dumps payment amounts) ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 1158
+ETag: W/"486-jBcV5+un3+XLwYniRVBUFpHVblQ"
+Date: Fri, 25 Sep 2026 16:52:28 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+[{"_id":"6ab634f524ee4341a1085a51","amount":100,"credit":null,"months":11,"sportType":{"_id":"6ab634eb24ee4341a1085a47","name":"MMA","description":"MMA Training","sportPic":"https://www.beachvillas.com/travel/wp-content/uploads/2020/11/Return_of_Sports.jpg","__v":0},"member":{"_id":"6ab6341524ee4341a1085a1f","firstName":"John","lastName":"Cena","profilePic":"","birthday":"1977-09-14T08:42:23.000Z","phoneNumber":94736676676,"gender":"male","isActive":true,"hasPaid":true,"cin":"001","createdAt":"2026-09-25T08:43:01.574Z","__v":0},"date":"2026-09-25T08:46:37.453Z","__v":0},{"_id":"6ab636c9c8b44eb69205c0f0","amount":250,"credit":null,"months":9,"sportType":{"_id":"6ab636b8c8b44eb69205c0d6","name":"Boxing","description":"Boxing Training","sportPic":"https://www.beachvillas.com/travel/wp-content/uploads/2020/11/Return_of_Sports.jpg","__v":0},"member":{"_id":"6ab6341524ee4341a1085a1f","firstName":"John","lastName":"Cena","profilePic":"","birthday":"1977-09-14T08:42:23.000Z","phoneNumber":94736676676,"gender":"male","isActive":true,"hasPaid":true,"cin":"001","createdAt":"2026-09-25T08:43:01.574Z","__v":0},"date":"2026-09-25T08:54:24.690Z","__v":0}]
+
+--- 4. GET /api/dashboard with NO auth header ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 1029
+ETag: W/"405-Qj3SzUBGpt/LMs8welSUdAjiVL4"
+Date: Fri, 25 Sep 2026 16:52:28 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"membersCount":1,"trainersCount":1,"totalIncome":350,"membersPerMonth":1,"unpaidCount":0,"table":[0,0,0,0,0,0,0,0,0,1,0],"sportTypesByIncome":[{"sport":{"_id":"6ab634eb24ee4341a1085a47","name":"MMA","description":"MMA Training","sportPic":"https://www.beachvillas.com/travel/wp-content/uploads/2020/11/Return_of_Sports.jpg","__v":0},"income":100},{"sport":{"_id":"6ab636b8c8b44eb69205c0d6","name":"Boxing","description":"Boxing Training","sportPic":"https://www.beachvillas.com/travel/wp-content/uploads/2020/11/Return_of_Sports.jpg","__v":0},"income":250}],"notifications":[],"todaySchedule":[],"sportsByMembers":[{"sport":{"_id":"6ab634eb24ee4341a1085a47","name":"MMA","description":"MMA Training","sportPic":"https://www.beachvillas.com/travel/wp-content/uploads/2020/11/Return_of_Sports.jpg","__v":0},"members":1},{"sport":{"_id":"6ab636b8c8b44eb69205c0d6","name":"Boxing","description":"Boxing Training","sportPic":"https://www.beachvillas.com/travel/wp-content/uploads/2020/11/Return_of_Sports.jpg","__v":0},"members":1}]}
+
+--- 5. POST /api/members with NO auth header — create a throwaway record ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 2
+ETag: W/"2-vyGp6PvFo4RvsFtPoIWeCReyIC8"
+Date: Fri, 25 Sep 2026 16:52:28 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{}
+
+--- 6. DELETE /api/members/6ab6a6cc89266f5a2cb465fd with NO auth header (deleting the throwaway record created in step 5) ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: text/html; charset=utf-8
+Content-Length: 7
+ETag: W/"7-tjn1zHGYMUWMg5mTAyN+hJnAyr4"
+Date: Fri, 25 Sep 2026 16:52:45 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+deleted
+
+--- 7. Confirm it's gone (unauthenticated GET showing only the original member remains) ---
+[{"_id":"6ab6341524ee4341a1085a1f","firstName":"John","lastName":"Cena","profilePic":"","birthday":"1977-09-14T08:42:23.000Z","phoneNumber":94736676676,"gender":"male","isActive":true,"hasPaid":true,"cin":"001","createdAt":"2026-09-25T08:43:01.574Z","__v":0}]
