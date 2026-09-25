@@ -55,14 +55,14 @@ app.use('/Images', express.static('Images'));
 
 app.use(
   cors({
-    origin: ["https://gym-management-system-eight.vercel.app"],
+    origin: ["http://localhost:3000"],
     methods: ["GET", "POST", "DELETE", "PATCH"],
     credentials: true,
   })
 );
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://gym-management-system-eight.vercel.app');
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
