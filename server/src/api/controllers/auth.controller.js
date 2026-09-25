@@ -85,6 +85,12 @@ exports.changePassword = async (req, res) => {
   }).populate("roles", "-__v")
     .exec();
 
+  if (!user) {
+    return res.status(404).send({
+      message: "User Not found.",
+    });
+  }
+
   // Validate Password
   var passwordIsValid = bcrypt.compareSync(
     req.body.passwords.curr_password,
