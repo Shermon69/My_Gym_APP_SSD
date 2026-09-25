@@ -7,11 +7,17 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 
+// bcrypt "cost" - how many times the hash function repeats itself. Higher
+// is slower to compute, which is good: it also makes brute-forcing a
+// stolen hash slower. 8 was too low for 2026 hardware; 12 is the current
+// recommended minimum.
+const BCRYPT_COST = 12;
+
 exports.signup = (req, res) => {
   const user = new User({
     username: req.body.username,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8),
+    password: bcrypt.hashSync(req.body.password, BCRYPT_COST),
   });
   user.save((err, user) => {
     if (err) {
@@ -49,18 +55,25 @@ exports.signin = (req, res) => {
         res.status(500).send({ message: err });
         return;
       }
+      // Wrong username and wrong password both get the exact same response.
+      // If they didn't, an attacker could tell which usernames exist just
+      // from the error message, then focus a password-guessing attack on
+      // only the accounts they know are real.
+      const invalidCredentials = () =>
+        res.status(401).send({
+          accessToken: null,
+          message: "Invalid username or password!",
+        });
+
       if (!user) {
-        return res.status(404).send({ message: "User Not found." });
+        return invalidCredentials();
       }
       var passwordIsValid = bcrypt.compareSync(
         req.body.password,
         user.password
       );
       if (!passwordIsValid) {
-        return res.status(401).send({
-          accessToken: null,
-          message: "Invalid Password!",
-        });
+        return invalidCredentials();
       }
       var token = jwt.sign({ id: user.id }, config.secret, {
         expiresIn: 86400, // 24 hours
@@ -106,7 +119,7 @@ exports.changePassword = async (req, res) => {
 
   // Update user password
   await User.findByIdAndUpdate(req.userId, {
-    password: bcrypt.hashSync(req.body.passwords.password, 8),
+    password: bcrypt.hashSync(req.body.passwords.password, BCRYPT_COST),
   });
 
   // Send a response
