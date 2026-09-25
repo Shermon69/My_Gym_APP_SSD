@@ -79,10 +79,11 @@ exports.signin = (req, res) => {
     });
 };
 exports.changePassword = async (req, res) => {
-  // Get User
-  let user = await User.findOne({
-    email: req.body.email,
-  }).populate("roles", "-__v")
+  // Get the logged-in user from the verified token, never from the request
+  // body - otherwise anyone could pass in someone else's email and change
+  // their password instead of their own.
+  let user = await User.findById(req.userId)
+    .populate("roles", "-__v")
     .exec();
 
   if (!user) {
@@ -102,9 +103,9 @@ exports.changePassword = async (req, res) => {
       message: "Invalid Password!",
     });
   }
-  
+
   // Update user password
-  await User.findOneAndUpdate({ email: req.body.email },{
+  await User.findByIdAndUpdate(req.userId, {
     password: bcrypt.hashSync(req.body.passwords.password, 8),
   });
 
