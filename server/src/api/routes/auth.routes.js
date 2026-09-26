@@ -36,5 +36,9 @@ module.exports = function(app) {
     controller.changePassword
   );
 
-  app.get("/api/users", controller.getUsers)
+  app.get(
+   "/api/users",
+  [authJwt.verifyToken, authJwt.isAdmin],
+  controller.getUsers
+);
 };
