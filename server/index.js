@@ -5,6 +5,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config()
 
+// Fail-fast check
+if (!process.env.JWT_SECRET || !process.env.SESSION_SECRET) {
+  console.error("FATAL: JWT_SECRET and SESSION_SECRET must be set in .env");
+  process.exit(1);
+}
+
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
@@ -72,7 +78,7 @@ app.use((req, res, next) => {
 app.use(
   session({
     key: "userId",
-    secret: "theateam",
+    secret: process.env.SESSION_SECRET,  
     resave: false,
     saveUninitialized: false,
     cookie: {
