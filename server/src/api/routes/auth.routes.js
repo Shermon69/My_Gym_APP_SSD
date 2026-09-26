@@ -1,10 +1,13 @@
 const rateLimit = require("express-rate-limit");
+
 const { verifySignUp, authJwt } = require("../middlewares");
+
 const controller = require("../controllers/auth.controller");
 
 // Slow down password-guessing: after 10 failed-or-not login attempts from
 // the same IP in 15 minutes, further attempts are rejected for a while.
 // Without this, a script can try passwords as fast as the network allows.
+
 const signinLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
@@ -13,7 +16,7 @@ const signinLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = function(app) {
+module.exports = function (app) {
   app.use((req, res, next) => {
     res.header(
       "Access-Control-Allow-Headers",
@@ -21,15 +24,18 @@ module.exports = function(app) {
     );
     next();
   });
+
   app.post(
     "/api/auth/signup",
     [
       verifySignUp.checkDuplicateUsernameOrEmail,
-      verifySignUp.checkRolesExisted
+      verifySignUp.checkRolesExisted,
     ],
     controller.signup
   );
+
   app.post("/api/auth/signin", signinLimiter, controller.signin);
+
   app.post(
     "/api/auth/changePassword",
     [authJwt.verifyToken],
@@ -37,8 +43,19 @@ module.exports = function(app) {
   );
 
   app.get(
-   "/api/users",
-  [authJwt.verifyToken, authJwt.isAdmin],
-  controller.getUsers
-);
+    "/api/users",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.getUsers
+  );
+
+  // V14: server-side session validation.
+  // The client-side route guard is only a UX check;
+  // the server validates the JWT before confirming authentication.
+  app.get(
+    "/api/auth/verify",
+    [authJwt.verifyToken],
+    (req, res) => {
+      res.status(200).send({ authenticated: true });
+    }
+  );
 };
