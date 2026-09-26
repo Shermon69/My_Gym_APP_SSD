@@ -123,7 +123,7 @@ exports.changePassword = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find({}).populate("roles");
+    const users = await User.find({}).select("-password").populate("roles");
     res.status(200).send(users);
   } catch (err) {
     res.status(500).send({ message: err });
