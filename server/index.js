@@ -3,6 +3,7 @@ const mysql = require("mysql");
 const path = require("path");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const helmet = require("helmet");
 require("dotenv").config()
 
 // Fail-fast check
@@ -48,6 +49,9 @@ const saltRounds = 10;
 
 const app = express();
 
+app.use(helmet());
+app.use(helmet.hidePoweredBy());
+
 app.use(express.json());
 
 //serve static files
@@ -66,14 +70,6 @@ app.use(
     credentials: true,
   })
 );
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-
 
 app.use(
   session({
@@ -149,7 +145,6 @@ const upload = multer({ storage: storage });
 // });
 
 app.post("/upload/member", upload.single("image"), async (req, res) => {
-  console.log(req);
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -172,7 +167,6 @@ app.post("/upload/member", upload.single("image"), async (req, res) => {
 });
 
 app.post("/upload/trainer", upload.single("image"), async (req, res) => {
-  console.log(req);
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -194,7 +188,6 @@ app.post("/upload/trainer", upload.single("image"), async (req, res) => {
   }
 });
 app.post("/upload/sportType", upload.single("image"), async (req, res) => {
-  console.log(req);
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -217,7 +210,6 @@ app.post("/upload/sportType", upload.single("image"), async (req, res) => {
 });
 
 app.post("/upload/products", upload.single("image"), async (req, res) => {
-  console.log(req);
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -238,6 +230,12 @@ app.post("/upload/products", upload.single("image"), async (req, res) => {
       res.send({ error: err });
     }
   }
+});
+
+// Error handler (must be last, after all routes)
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: "Internal server error" });
 });
 
 // server listening to lofi port 3001 🎶
