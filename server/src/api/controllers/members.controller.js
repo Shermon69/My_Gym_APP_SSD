@@ -8,16 +8,26 @@ const fs = require("fs");
 const path = require("path");
 const { exit } = require("process");
 
-
 exports.addMember = async (req, res) => {
     try {
-        const member = Member.create(req.body);
+        const member = await Member.create({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            birthday: req.body.birthday,
+            phoneNumber: req.body.phoneNumber,
+            gender: req.body.gender,
+            cin: req.body.cin,
+            profilePic: req.body.profilePic,
+            // NOT included: isActive, hasPaid, createdAt
+            // (isActive and hasPaid use defaults; createdAt is server-set)
+        });
         res.send(member)
     } catch(err) {
-    
       console.log(err);
+      res.status(500).send({ error: "Failed to create member" });
     }
 }
+
 exports.getAllMembers = async (req, res) => {
     try {
         const members = await Member.find();
@@ -99,10 +109,23 @@ exports.generateCard = async (req, res) => {
 exports.updateMember = async (req, res) => {
     const id = req.params.id;
     try{
-      await Member.findByIdAndUpdate(id, req.body, {
+      await Member.findByIdAndUpdate(
+        id,
+        {
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          birthday: req.body.birthday,
+          phoneNumber: req.body.phoneNumber,
+          gender: req.body.gender,
+          cin: req.body.cin,
+          profilePic: req.body.profilePic,
+          // NOT included: isActive, hasPaid, createdAt
+        },
+        {
           new: true, 
           runValidators: true
-      });
+        }
+      );
       res.send("updated");
     }
     catch(err) {

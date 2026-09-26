@@ -2,10 +2,18 @@ const Payment = require("./../models/payments");
 
 exports.addPayment = async (req, res) => {
   try {
-    const pay = await Payment.create(req.body);
-    res.send("added");
+    const pay = await Payment.create({
+      member: req.body.member,
+      sportType: req.body.sportType,
+      months: req.body.months,
+      credit: req.body.credit,
+      date: new Date(),
+      // amount is NOT set by the client. It must be calculated server-side or set by an admin through a separate, protected endpoint.
+    });
+    res.status(200).send("added");
   } catch (err) {
-    res.send(err);
+    console.error("Error adding payment:", err);
+    res.status(500).send({ error: "Failed to add payment" });
   }
 };
 
