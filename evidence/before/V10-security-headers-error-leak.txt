@@ -1,0 +1,44 @@
+=== V10 - Security Headers, CORS, and Error Leakage - BEFORE evidence ===
+Captured: 2026-09-26T20:50:58+05:30
+Baseline commit: 8b6b45873cfb773be4c2909bfe22b5d409c8418e
+
+--- 1. Inspect response headers ---
+Command:
+curl -I http://localhost:3001/api/auth/signin
+
+Output:
+HTTP/1.1 404 Not Found
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Security-Policy: default-src 'none'
+X-Content-Type-Options: nosniff
+Content-Type: text/html; charset=utf-8
+Content-Length: 155
+Date: Sat, 26 Sep 2026 12:38:23 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+Observation:
+The response discloses the Express framework through X-Powered-By. CSP and
+X-Content-Type-Options are present in this response. This command uses HEAD
+(curl -I) and received 404; it does not exercise a successful POST signin
+response. The CORS origin shown is http://localhost:3000.
+
+--- 2. Inspect error response for implementation details ---
+Command:
+curl http://localhost:3001/api/members/invalid-id
+
+Output:
+{"error":{"stringValue":"\"invalid-id\"","valueType":"string","kind":"ObjectId","value":"invalid-id","path":"_id","reason":{},"name":"CastError","message":"Cast to ObjectId failed for value \"invalid-id\" (type string) at path \"_id\" for model \"member\""}}
+
+Observation:
+The error response exposes Mongoose/MongoDB implementation details, including
+the CastError type, model name, field path, and cast failure message.
+
+--- 3. Combined evidence file ---
+This file combines the supplied header and error-leak test outputs. It replaces
+separate evidence files named V10-no-headers.txt and V10-error-leak.txt.
