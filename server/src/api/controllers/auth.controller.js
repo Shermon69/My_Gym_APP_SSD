@@ -6,7 +6,6 @@ const Role = db.role;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
-
 // bcrypt "cost" - how many times the hash function repeats itself. Higher
 // is slower to compute, which is good: it also makes brute-forcing a
 // stolen hash slower. 8 was too low for 2026 hardware; 12 is the current
@@ -18,33 +17,19 @@ exports.signup = (req, res) => {
     username: req.body.username,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, BCRYPT_COST),
+    roles: [],
   });
-  user.save((err, user) => {
+
+  user.save((err) => {
     if (err) {
       res.status(500).send({ message: err });
       return;
     }
-    Role.find(
-      {
-        name: { $in: req.body.roles },
-      },
-      (err, roles) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-        user.roles = roles.map((role) => role._id);
-        user.save((err) => {
-          if (err) {
-            res.status(500).send({ message: err });
-            return;
-          }
-          res.send({ message: "User was registered successfully!" });
-        });
-      }
-    );
+
+    res.send({ message: "User was registered successfully!" });
   });
 };
+
 exports.signin = (req, res) => {
   User.findOne({
     username: req.body.username,
@@ -55,6 +40,7 @@ exports.signin = (req, res) => {
         res.status(500).send({ message: err });
         return;
       }
+
       // Wrong username and wrong password both get the exact same response.
       // If they didn't, an attacker could tell which usernames exist just
       // from the error message, then focus a password-guessing attack on
@@ -68,20 +54,26 @@ exports.signin = (req, res) => {
       if (!user) {
         return invalidCredentials();
       }
+
       var passwordIsValid = bcrypt.compareSync(
         req.body.password,
         user.password
       );
+
       if (!passwordIsValid) {
         return invalidCredentials();
       }
+
       var token = jwt.sign({ id: user.id }, config.secret, {
         expiresIn: 86400, // 24 hours
       });
+
       var authorities = [];
+
       for (let i = 0; i < user.roles.length; i++) {
         authorities.push("ROLE_" + user.roles[i].name.toUpperCase());
       }
+
       res.status(200).send({
         id: user._id,
         username: user.username,
@@ -91,6 +83,7 @@ exports.signin = (req, res) => {
       });
     });
 };
+
 exports.changePassword = async (req, res) => {
   // Get the logged-in user from the verified token, never from the request
   // body - otherwise anyone could pass in someone else's email and change
@@ -129,11 +122,10 @@ exports.changePassword = async (req, res) => {
 };
 
 exports.getUsers = async (req, res) => {
-  try{
-    const users = await User.find({}).populate('roles')
-    res.status(200).send(users)
-
-  }catch(err){
-    res.status(500).send({message: err})
+  try {
+    const users = await User.find({}).populate("roles");
+    res.status(200).send(users);
+  } catch (err) {
+    res.status(500).send({ message: err });
   }
-}
+};
