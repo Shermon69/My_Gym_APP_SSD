@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRoutes } from "react-router-dom";
 import Axios from "axios";
 
@@ -15,28 +15,69 @@ import { BaseOptionChartStyle } from "./components/charts/BaseOptionChart";
 
 import { UserContext } from "./UserContext";
 
-// ----------------------------------------------------------------------
-
-// Re-attach the stored JWT to every future axios request on load/refresh,
-// so protected API routes keep working for an already-logged-in session.
-const storedUser = localStorage.getItem("user");
-if (storedUser) {
-  try {
-    const { accessToken } = JSON.parse(storedUser);
-    if (accessToken) {
-      Axios.defaults.headers.common["x-access-token"] = accessToken;
-    }
-  } catch (e) {
-    // Malformed localStorage value: ignore, user will be redirected to login.
-  }
-}
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 export default function App() {
   const [user, setUser] = useState({});
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const value = useMemo(() => ({ user, setUser }), [user, setUser]);
+  const value = useMemo(() => ({ user, setUser }), [user]);
 
-  const routing = useRoutes(Router(localStorage.getItem("user")));
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      setAuthChecked(true);
+      return;
+    }
+
+    try {
+      const parsedUser = JSON.parse(storedUser);
+      const accessToken = parsedUser?.accessToken;
+
+      if (!accessToken) {
+        localStorage.removeItem("user");
+        setAuthChecked(true);
+        return;
+      }
+
+      Axios.defaults.headers.common["x-access-token"] = accessToken;
+
+      // The server is the real authentication boundary.
+      Axios.get(`${API_URL}/api/auth/verify`)
+        .then(() => {
+          setIsAuthenticated(true);
+        })
+        .catch(() => {
+          // Invalid/expired token: clear the client session.
+          localStorage.removeItem("user");
+          delete Axios.defaults.headers.common["x-access-token"];
+          setIsAuthenticated(false);
+        })
+        .finally(() => {
+          setAuthChecked(true);
+        });
+    } catch (e) {
+      localStorage.removeItem("user");
+      setAuthChecked(true);
+    }
+  }, []);
+
+  // Hooks must always run in the same order.
+  // Until authentication is checked, keep the client route guard closed.
+  const routing = useRoutes(
+    Router(
+      authChecked && isAuthenticated
+        ? localStorage.getItem("user")
+        : null
+    )
+  );
+
+  // Wait until the server has checked the stored token.
+  if (!authChecked) {
+    return null;
+  }
 
   return (
     <ThemeConfig>
@@ -46,7 +87,7 @@ export default function App() {
       <SnackbarProvider>
         <UserContext.Provider value={value}>
           {routing}
-          </UserContext.Provider>
+        </UserContext.Provider>
       </SnackbarProvider>
     </ThemeConfig>
   );
