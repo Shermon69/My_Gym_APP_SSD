@@ -114,6 +114,8 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/products", productsRoutes);
 
 const multer = require("multer");
+const crypto = require("crypto");
+const { authJwt } = require("./src/api/middlewares");
 
 // file upload handling
 const storage = multer.diskStorage({
@@ -121,12 +123,28 @@ const storage = multer.diskStorage({
     cb(null, "Images");
   },
   filename: (req, file, cb) => {
-    console.log(file);
-    cb(null, Date.now() + path.extname(file.originalname));
+    crypto.randomBytes(16, (err, buf) => {
+      if (err) return cb(err);
+      const ext = path.extname(file.originalname).toLowerCase();
+      cb(null, buf.toString('hex') + ext);
+    });
   },
 });
 
-const upload = multer({ storage: storage });
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type. Only JPEG, PNG and GIF are allowed."), false);
+  }
+};
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+  fileFilter: fileFilter
+});
 
 // app.get("/dashboard", async (req, res) => {
 //   Promise.all([
@@ -142,7 +160,7 @@ const upload = multer({ storage: storage });
 //   });
 // });
 
-app.post("/upload/member", upload.single("image"), async (req, res) => {
+app.post("/upload/member", [authJwt.verifyToken], upload.single("image"), async (req, res) => {
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -164,7 +182,7 @@ app.post("/upload/member", upload.single("image"), async (req, res) => {
   }
 });
 
-app.post("/upload/trainer", upload.single("image"), async (req, res) => {
+app.post("/upload/trainer", [authJwt.verifyToken], upload.single("image"), async (req, res) => {
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -185,7 +203,7 @@ app.post("/upload/trainer", upload.single("image"), async (req, res) => {
     }
   }
 });
-app.post("/upload/sportType", upload.single("image"), async (req, res) => {
+app.post("/upload/sportType", [authJwt.verifyToken], upload.single("image"), async (req, res) => {
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -207,7 +225,7 @@ app.post("/upload/sportType", upload.single("image"), async (req, res) => {
   }
 });
 
-app.post("/upload/products", upload.single("image"), async (req, res) => {
+app.post("/upload/products", [authJwt.verifyToken], upload.single("image"), async (req, res) => {
   if (!req.file) {
     console.log("No file upload");
   } else {
