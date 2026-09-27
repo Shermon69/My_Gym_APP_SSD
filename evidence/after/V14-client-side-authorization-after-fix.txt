@@ -1,0 +1,64 @@
+=== V14 - Client-Side-Only Authorization - AFTER evidence ===
+Captured: 2026-09-26T23:38:54+05:30
+Fix commit: 762066e
+Merged development commit: f5721c2
+
+--- 1. Server-side token validation test ---
+The fixed application validates the stored JWT with the server before
+treating the user as authenticated. The /api/auth/verify endpoint is
+protected by authJwt.verifyToken.
+
+1.1 Request without a token
+
+Command:
+GET http://localhost:3001/api/auth/verify
+
+Output:
+{"message":"No token provided!"}
+
+HTTP status:
+403
+
+Result:
+The server rejects requests that do not contain an authentication token.
+
+1.2 Submit the same fake token used in the BEFORE test
+
+Command (Browser Console):
+fetch("http://localhost:3001/api/auth/verify", {
+  headers: { "x-access-token": "fake-token" }
+}).then(async r => console.log(r.status, await r.text()))
+
+Output:
+401 {"message":"Unauthorized!"}
+
+Result:
+The server rejects the fake token because it is not a valid JWT signed
+with the server-side secret.
+
+--- 2. Frontend authorization test ---
+The same fake token was present in localStorage:
+
+{"accessToken":"fake-token"}
+
+After refreshing the application, the frontend called the server-side
+/api/auth/verify endpoint. The server rejected the token, after which
+the frontend removed the invalid session and prevented dashboard access.
+
+Observed result:
+The application displayed the login page instead of allowing access to:
+
+http://localhost:3000/dashboard/app
+
+Result:
+The same fake-token exploit that successfully reached the dashboard
+before the fix no longer provides authenticated access after the fix.
+The server is now the authentication boundary, while the client-side
+route guard is used only for the user experience.
+
+--- 3. Safety and credential handling ---
+No legitimate credentials were used in this test.
+The token value used was only:
+fake-token
+
+The test was performed against the local development environment.
