@@ -1,0 +1,39 @@
+﻿=== V2 - Role Escalation During Signup - BEFORE evidence ===
+
+Baseline commit: d0ee685
+
+--- 1. Privilege escalation exploit ---
+
+Request:
+POST /api/auth/signup
+
+The signup request supplied an attacker-controlled role:
+
+roles: ["admin"]
+
+Test account:
+username: v2adminpoc927
+email: v2adminpoc927@example.com
+
+Server response:
+User was registered successfully!
+
+--- 2. Verify assigned privileges ---
+
+The test account was then authenticated using the normal signin endpoint.
+
+Observed result:
+roles: {ROLE_ADMIN}
+
+Result:
+The attacker-controlled "roles":["admin"] value was accepted during
+registration and the newly created account received ROLE_ADMIN.
+
+This demonstrates the V2 role-escalation vulnerability in the baseline.
+
+--- 3. Safety and credential handling ---
+
+The test was performed against the local development environment.
+
+The JWT access token returned by signin was intentionally excluded
+from this evidence file.
