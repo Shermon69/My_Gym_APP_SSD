@@ -1,0 +1,42 @@
+﻿=== V2 - Role Escalation During Signup - AFTER evidence ===
+
+Fix commit: 6c86dd2
+
+--- 1. Same privilege escalation attempt after the fix ---
+
+Request:
+POST /api/auth/signup
+
+The same attacker-controlled role input was supplied:
+
+roles: ["admin"]
+
+Test account:
+username: v2adminpoc_after927
+email: v2adminpoc_after927@example.com
+
+Server response:
+User was registered successfully!
+
+--- 2. Verify assigned privileges ---
+
+The test account was then authenticated using the normal signin endpoint.
+
+Observed result:
+roles: {}
+
+Result:
+The attacker-controlled "roles":["admin"] value was no longer assigned
+to the newly created account.
+
+The signup controller now initializes new users with an empty roles array
+and no longer assigns roles based on req.body.roles.
+
+The same privilege-escalation attempt therefore fails after the fix.
+
+--- 3. Safety and credential handling ---
+
+The test was performed against the local development environment.
+
+The JWT access token returned by signin was intentionally excluded
+from this evidence file.

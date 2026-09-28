@@ -3,7 +3,14 @@ const mysql = require("mysql");
 const path = require("path");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const helmet = require("helmet");
 require("dotenv").config()
+
+// Fail-fast check
+if (!process.env.JWT_SECRET || !process.env.SESSION_SECRET) {
+  console.error("FATAL: JWT_SECRET and SESSION_SECRET must be set in .env");
+  process.exit(1);
+}
 
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -42,10 +49,11 @@ const saltRounds = 10;
 
 const app = express();
 
+app.use(helmet());
+app.use(helmet.hidePoweredBy());
+
 app.use(express.json());
 
-//serve static files
-app.use(express.static(`${__dirname}`));
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -61,18 +69,10 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-
-
 app.use(
   session({
     key: "userId",
-    secret: "theateam",
+    secret: process.env.SESSION_SECRET,  
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -114,6 +114,8 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/products", productsRoutes);
 
 const multer = require("multer");
+const crypto = require("crypto");
+const { authJwt } = require("./src/api/middlewares");
 
 // file upload handling
 const storage = multer.diskStorage({
@@ -121,12 +123,28 @@ const storage = multer.diskStorage({
     cb(null, "Images");
   },
   filename: (req, file, cb) => {
-    console.log(file);
-    cb(null, Date.now() + path.extname(file.originalname));
+    crypto.randomBytes(16, (err, buf) => {
+      if (err) return cb(err);
+      const ext = path.extname(file.originalname).toLowerCase();
+      cb(null, buf.toString('hex') + ext);
+    });
   },
 });
 
-const upload = multer({ storage: storage });
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type. Only JPEG, PNG and GIF are allowed."), false);
+  }
+};
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+  fileFilter: fileFilter
+});
 
 // app.get("/dashboard", async (req, res) => {
 //   Promise.all([
@@ -142,8 +160,7 @@ const upload = multer({ storage: storage });
 //   });
 // });
 
-app.post("/upload/member", upload.single("image"), async (req, res) => {
-  console.log(req);
+app.post("/upload/member", [authJwt.verifyToken], upload.single("image"), async (req, res) => {
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -165,8 +182,7 @@ app.post("/upload/member", upload.single("image"), async (req, res) => {
   }
 });
 
-app.post("/upload/trainer", upload.single("image"), async (req, res) => {
-  console.log(req);
+app.post("/upload/trainer", [authJwt.verifyToken], upload.single("image"), async (req, res) => {
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -187,8 +203,7 @@ app.post("/upload/trainer", upload.single("image"), async (req, res) => {
     }
   }
 });
-app.post("/upload/sportType", upload.single("image"), async (req, res) => {
-  console.log(req);
+app.post("/upload/sportType", [authJwt.verifyToken], upload.single("image"), async (req, res) => {
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -210,8 +225,7 @@ app.post("/upload/sportType", upload.single("image"), async (req, res) => {
   }
 });
 
-app.post("/upload/products", upload.single("image"), async (req, res) => {
-  console.log(req);
+app.post("/upload/products", [authJwt.verifyToken], upload.single("image"), async (req, res) => {
   if (!req.file) {
     console.log("No file upload");
   } else {
@@ -232,6 +246,12 @@ app.post("/upload/products", upload.single("image"), async (req, res) => {
       res.send({ error: err });
     }
   }
+});
+
+// Error handler (must be last, after all routes)
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: "Internal server error" });
 });
 
 // server listening to lofi port 3001 🎶

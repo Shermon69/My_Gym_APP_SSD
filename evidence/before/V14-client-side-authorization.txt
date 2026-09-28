@@ -1,0 +1,51 @@
+=== V14 - Client-Side-Only Authorization - BEFORE evidence ===
+Captured: 2026-09-26T23:24:57+05:30
+Baseline commit: e8288ef
+
+--- 1. Client-side authorization bypass test ---
+The frontend used the presence of localStorage.user as the authentication
+condition for dashboard routing. The value was passed to Router() from
+App.js, and routes.js allowed dashboard access when the value was not null.
+
+1.1 Insert a fake authentication object
+
+Command (Browser Console):
+localStorage.setItem("user", JSON.stringify({accessToken:"fake-token"}))
+
+Output:
+undefined
+
+1.2 Confirm the stored value
+
+Command (Browser Console):
+localStorage.getItem("user")
+
+Output:
+{"accessToken":"fake-token"}
+
+1.3 Access the dashboard without performing a legitimate login
+
+Action:
+Refreshed the application after inserting the fake token.
+
+Observed result:
+The application navigated to:
+
+http://localhost:3000/dashboard/app
+
+The dashboard was displayed even though no legitimate authentication
+had been performed.
+
+Result:
+A client-controlled localStorage value containing a fake access token
+was sufficient to satisfy the frontend authentication guard and expose
+the dashboard route. This demonstrates the V14 client-side-only
+authorization vulnerability.
+
+--- 2. Server-side verification context ---
+At the vulnerable baseline, the frontend did not perform a server-side
+validation of the stored token before allowing the dashboard route.
+
+No legitimate credentials were used during this test.
+The token value used was only:
+fake-token

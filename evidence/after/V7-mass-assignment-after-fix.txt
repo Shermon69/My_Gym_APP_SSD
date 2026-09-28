@@ -1,0 +1,84 @@
+=== V7 - Mass Assignment - AFTER fix evidence ===
+Captured: 2026-09-26T16:40:36+05:30
+Baseline commit: 836c233338755debdfa6103c933c7c1f6854f02b
+Modified code files:
+- server/src/api/controllers/members.controller.js
+- server/src/api/controllers/payment.controller.js
+
+The local API was running at http://localhost:3001 and connected to MongoDB.
+The tested member/payment routes do not require an access token. No password or
+bearer token is included in this evidence.
+
+--- 1. Valid member creation still works ---
+Command (PowerShell):
+$body = @{
+  firstName = 'Valid'
+  lastName = 'Test'
+  birthday = '1990-01-01'
+  phoneNumber = 771234567
+  gender = 'male'
+  cin = 'V7VALID20260926163940'
+} | ConvertTo-Json -Compress
+$created = Invoke-RestMethod -Uri 'http://localhost:3001/api/members' `
+  -Method Post -ContentType 'application/json' -Body $body
+"member_id=$($created._id) isActive=$($created.isActive) hasPaid=$($created.hasPaid) cin=$($created.cin)"
+
+Output:
+member_id=6ab7a7f46362d9ff17c6a67a isActive=True hasPaid=True cin=V7VALID20260926163940
+
+GET verification:
+member_id=6ab7a7f46362d9ff17c6a67a isActive=True hasPaid=True cin=V7VALID20260926163940
+
+Result: Valid member fields were accepted and server defaults were applied.
+
+--- 2. Member status mass-assignment attempt ---
+The request included isActive=false and hasPaid=false.
+
+Command (PowerShell):
+$body = @{
+  firstName = 'Exploit'
+  lastName = 'Test'
+  birthday = '1990-01-01'
+  phoneNumber = 771234567
+  gender = 'male'
+  cin = 'V7EXPLOIT20260926163940'
+  isActive = $false
+  hasPaid = $false
+} | ConvertTo-Json -Compress
+$created = Invoke-RestMethod -Uri 'http://localhost:3001/api/members' `
+  -Method Post -ContentType 'application/json' -Body $body
+"member_id=$($created._id) isActive=$($created.isActive) hasPaid=$($created.hasPaid) cin=$($created.cin)"
+
+Output:
+member_id=6ab7a7f46362d9ff17c6a67d isActive=True hasPaid=True cin=V7EXPLOIT20260926163940
+
+GET verification:
+cin=V7EXPLOIT20260926163940 count=1 id=6ab7a7f46362d9ff17c6a67d isActive=True hasPaid=True
+
+Result: The client-supplied false values were ignored; the stored member retained
+the default true values.
+
+--- 3. Payment amount mass-assignment attempt ---
+The request included amount=0 and referenced the valid test member from section 1.
+
+Command (PowerShell):
+$body = @{ amount = 0; member = '6ab7a7f46362d9ff17c6a67a' } | ConvertTo-Json -Compress
+$response = Invoke-RestMethod -Uri 'http://localhost:3001/api/payment' `
+  -Method Post -ContentType 'application/json' -Body $body
+"post_response=$response"
+
+Output:
+post_response=added
+
+GET verification:
+payment_id=6ab7a8106362d9ff17c6a685 member_id=6ab7a7f46362d9ff17c6a67a amount_field_present=False amount=<omitted>
+
+Result: The client-supplied amount=0 was not persisted. The server still created
+a payment record without an amount and returned "added". This blocks the tested
+amount assignment, but payment creation should calculate or validate the amount
+server-side before treating the payment workflow as fully secure.
+
+--- 4. Overall result ---
+Valid member creation succeeds. Client-supplied isActive and hasPaid values are
+ignored, and client-supplied payment amount is omitted from the created payment.
+The test created two member records and one payment record in the local database.
