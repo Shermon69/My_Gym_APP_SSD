@@ -1,0 +1,105 @@
+=== V1 — Broken Access Control — AFTER evidence ===
+Captured: 2026-09-25T18:53:10Z
+
+--- 1. GET /api/members, NO auth header (was 200 + full data before) ---
+HTTP/1.1 403 Forbidden
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 32
+ETag: W/"20-2RqHD6kaUW9yXBkJM4BxciU8/Ik"
+Date: Fri, 25 Sep 2026 18:53:10 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"message":"No token provided!"}
+
+--- 2. GET /api/trainers, NO auth header ---
+HTTP/1.1 403 Forbidden
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 32
+ETag: W/"20-2RqHD6kaUW9yXBkJM4BxciU8/Ik"
+Date: Fri, 25 Sep 2026 18:53:10 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"message":"No token provided!"}
+
+--- 3. GET /api/payment, NO auth header ---
+HTTP/1.1 403 Forbidden
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 32
+ETag: W/"20-2RqHD6kaUW9yXBkJM4BxciU8/Ik"
+Date: Fri, 25 Sep 2026 18:53:10 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"message":"No token provided!"}
+
+--- 4. GET /api/dashboard, NO auth header ---
+HTTP/1.1 403 Forbidden
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 32
+ETag: W/"20-2RqHD6kaUW9yXBkJM4BxciU8/Ik"
+Date: Fri, 25 Sep 2026 18:53:10 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"message":"No token provided!"}
+
+--- 5. POST /api/members, NO auth header (was able to create a record before) ---
+HTTP/1.1 403 Forbidden
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 32
+ETag: W/"20-2RqHD6kaUW9yXBkJM4BxciU8/Ik"
+Date: Fri, 25 Sep 2026 18:53:10 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"message":"No token provided!"}
+
+--- 6. DELETE /api/members/<real id>, NO auth header (was able to delete before) ---
+HTTP/1.1 403 Forbidden
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 32
+ETag: W/"20-2RqHD6kaUW9yXBkJM4BxciU8/Ik"
+Date: Fri, 25 Sep 2026 18:53:11 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"message":"No token provided!"}
+

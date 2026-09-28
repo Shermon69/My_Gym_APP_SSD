@@ -1,0 +1,39 @@
+--- 7. GET /api/members WITH a valid token from an ordinary logged-in staff account (not admin) -- should now succeed ---
+HTTP/1.1 200 OK
+
+--- 8. POST /api/members WITH that same non-admin token -- should succeed (create a throwaway record) ---
+HTTP/1.1 200 OK
+
+--- 9. DELETE that record WITH the non-admin staff token -- should be BLOCKED (staff can view/create but not delete) ---
+HTTP/1.1 403 Forbidden
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: application/json; charset=utf-8
+Content-Length: 33
+ETag: W/"21-gJAHz/3ltoRSM1Lfi4co8rvPVXU"
+Date: Fri, 25 Sep 2026 18:54:27 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"message":"Require Admin Role!"}
+
+--- 10. DELETE the same record WITH the admin token -- should succeed ---
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET,PUT,POST,DELETE
+Access-Control-Allow-Headers: x-access-token, Origin, Content-Type, Accept
+Content-Type: text/html; charset=utf-8
+Content-Length: 7
+ETag: W/"7-tjn1zHGYMUWMg5mTAyN+hJnAyr4"
+Date: Fri, 25 Sep 2026 18:54:27 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+deleted
