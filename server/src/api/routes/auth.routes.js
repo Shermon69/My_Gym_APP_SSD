@@ -3,6 +3,7 @@ const rateLimit = require("express-rate-limit");
 const { verifySignUp, authJwt } = require("../middlewares");
 
 const controller = require("../controllers/auth.controller");
+const oauthController = require("../controllers/oauth.controller");
 
 // Slow down password-guessing: after 10 failed-or-not login attempts from
 // the same IP in 15 minutes, further attempts are rejected for a while.
@@ -35,6 +36,10 @@ module.exports = function (app) {
   );
 
   app.post("/api/auth/signin", signinLimiter, controller.signin);
+
+  // Google OAuth endpoint — receives the Google ID token from the PKCE flow,
+  // verifies it server-side, and issues an httpOnly cookie JWT (V11 fix).
+  app.post("/api/auth/google", oauthController.googleLogin);
 
   app.post(
     "/api/auth/changePassword",

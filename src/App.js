@@ -36,16 +36,16 @@ export default function App() {
       const parsedUser = JSON.parse(storedUser);
       const accessToken = parsedUser?.accessToken;
 
-      if (!accessToken) {
-        localStorage.removeItem("user");
-        setAuthChecked(true);
-        return;
+      // Google OAuth users have no accessToken in localStorage (it is stored
+      // in an httpOnly cookie instead). We still attempt server-side verification
+      // using withCredentials so the cookie is sent automatically.
+      if (accessToken) {
+        Axios.defaults.headers.common["x-access-token"] = accessToken;
       }
 
-      Axios.defaults.headers.common["x-access-token"] = accessToken;
-
       // The server is the real authentication boundary.
-      Axios.get(`${API_URL}/api/auth/verify`)
+      // withCredentials: true is needed for cookie-based auth (Google OAuth users)
+      Axios.get(`${API_URL}/api/auth/verify`, { withCredentials: true })
         .then(() => {
           setIsAuthenticated(true);
         })
