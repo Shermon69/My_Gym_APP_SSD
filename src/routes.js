@@ -1,4 +1,4 @@
-import { Navigate, Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 // layouts
 import DashboardLayout from "./layouts/dashboard";
 import LogoOnlyLayout from "./layouts/LogoOnlyLayout";
@@ -17,7 +17,7 @@ import Payment from "./pages/Payement";
 import Settings from "./pages/Settings";
 import Profil from "./pages/Profil";
 import RegiterReception from "./pages/RegisterReception";
-
+import AuthCallback from "./pages/AuthCallback";
 
 // ----------------------------------------------------------------------
 
@@ -51,6 +51,8 @@ export default function Router(isAuth) {
         { path: "*", element: <Navigate to="/404" /> },
       ],
     },
+    // Standalone route — accessible regardless of auth state for Google OAuth redirect
+    { path: "auth/callback", element: <AuthCallback /> },
     { path: "*", element: <Navigate to="/404" replace /> },
   ];
 }

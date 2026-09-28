@@ -4,8 +4,12 @@ const db = require("../models/auth");
 const User = db.user;
 const Role = db.role;
 
+// V11 Fix: Read the JWT from an httpOnly cookie (set by Google OAuth login)
+// OR from the x-access-token header (set by the existing username/password login).
+// Cookie-based storage means JavaScript cannot read the token, eliminating
+// the XSS risk that comes from storing tokens in localStorage.
 verifyToken = (req, res, next) => {
-  let token = req.headers["x-access-token"];
+  let token = req.cookies?.accessToken || req.headers["x-access-token"];
   if (!token) {
     return res.status(403).send({ message: "No token provided!" });
   }
@@ -17,6 +21,7 @@ verifyToken = (req, res, next) => {
     next();
   });
 };
+
 isAdmin = (req, res, next) => {
   User.findById(req.userId).exec((err, user) => {
     if (err) {
